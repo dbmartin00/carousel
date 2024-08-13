@@ -1,7 +1,9 @@
 # Harness Split Carousel
 Author: david.martin@harness.io
 
-Display a set of destinations with fare prices.
+Create and configure a "carousel" flag, as explained below.
+
+The HTML display is a set of destinations with fare prices.
 The suggested dynamic config shows cheaper fares with "off" treatment
 and more popular, expensive fares with "on" treatment.
 
@@ -19,8 +21,14 @@ Off/On side-by-side
 
 ## server.js
 
+```
+node server.js
+```
+
 node.js express "destinations" api tests a flag called "carousel"
 and returns the JSON associated with its treatment.
+
+You will have to set dynamic config for your "carousel" flag.
 
 The on treatment's tested JSON was...
 ```json
@@ -43,7 +51,7 @@ The on treatment's tested JSON was...
 ]
 ```
 
-The off tretment tested JSON was...
+The off treatment tested JSON was...
 ```
 [
   {
