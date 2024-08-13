@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Destinations</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #panes {
+            display: flex;
+            flex: 1; /* Take up remaining space */
+            flex-direction: column; /* Align panes horizontally */
+        }
+
+        .pane {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-size: cover;
+            background-position: center;
+            color: white;
+            text-align: center;
+            position: relative;
+        }
+        .pane h1 {
+            font-size: 3em;
+            margin: 0;
+            padding: 0;
+        }
+        .pane p {
+            font-size: 2em;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/uuid/8.3.2/uuid.min.js"></script>
+    <script src="https://cdn.split.io/sdk/split-10.25.2.min.js"></script>
+</head>
+<body>
+<!--     <div class="pane" id="pane1"></div>
+    <div class="pane" id="pane2"></div>
+    <div class="pane" id="pane3"></div> -->
+    <div id="panes"/>
+
+    <script>
+        const id = uuid.v4();
+
+        var factory = splitio({ 
+          core: {
+            authorizationKey: '2d20dfejlhn8ihi1tla2e27bs4ishqa54nt5',
+            key: id 
+            },
+          scheduler: {
+            eventPushRate: 1
+          }
+        });
+
+        var client = factory.client();
+
+        draw();
+
+        client.on(client.Event.SDK_UPDATE, () => {
+            console.log('SDK_UPDATE!')
+            draw();
+        })
+
+        function createClickHandler(pane) {
+            return function(event) {
+                const destinationName = pane.getAttribute('data-name');
+                console.log(`Clicked on destination: ${destinationName}`);
+                const destinationFare = parseInt(pane.getAttribute('data-fare'));
+
+                const properties = {
+                    destinationName: destinationName,
+                    destinationFare: destinationFare 
+                };
+
+                console.log('properties', properties);
+
+                const queued = client.track('user', 'impulse', destinationFare, properties);
+
+                console.log('sent to split? ' + queued);
+
+            }
+        }
+
+        function draw() {
+            axios.get(`http://127.0.0.1:3000/destinations/${id}`)
+            .then(response => {
+                const destinations = response.data;
+                console.log('destinations', destinations);
+                if (destinations.length >= 3) {
+                    const panesDiv = document.getElementById('panes');
+                    panesDiv.innerHTML = '';
+
+                    const panes = ['pane1', 'pane2', 'pane3'];
+                    panes.forEach((paneId, index) => {
+                        const newPaneDiv = document.createElement('div');
+                        newPaneDiv.className = 'pane';
+                        newPaneDiv.id = paneId;
+                        panesDiv.appendChild(newPaneDiv);
+                        
+                        const pane = newPaneDiv;
+
+                        const destination = destinations[index];
+
+                        pane.style.backgroundImage = `url(${destination.imgUrl})`;
+                        pane.setAttribute('data-name', destination.name); // Add the destination name as a data attribute
+                        pane.setAttribute('data-fare', destination.fare); 
+                        pane.innerHTML = `
+                        <div>
+                        <h1>${destination.name}</h1>
+                        <p>$${destination.fare}</p>
+                        </div>
+                        `;
+
+                        // Attach click event listener to each pane
+                        pane.addEventListener('click', createClickHandler(pane));
+                    });
+                } else {
+                    console.error('Not enough destinations received.');
+                }
+
+                isListenerAdded = true;
+            })
+            .catch(error => {
+                console.error('Error fetching destinations:', error);
+            });
+
+        }
+    
+
+    </script>
+</body>
+</html>
+

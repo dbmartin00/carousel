@@ -1,0 +1,18 @@
+{
+  "name": "carousel",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@splitsoftware/splitio": "^10.27.0",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "punycode": "^2.3.1",
+    "uuid": "^10.0.0"
+  }
+}
